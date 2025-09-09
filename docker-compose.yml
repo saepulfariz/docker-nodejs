@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  node:
+    container_name: node_app
+    build:
+      context: .
+      target: ${NODE_ENV}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src:/app/src:delegated
+      - /app/node_modules
+    environment:
+      - NODE_ENV=${NODE_ENV}
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    container_name: node_mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: node_phpmyadmin_ui
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+volumes:
+  mysql_data:
